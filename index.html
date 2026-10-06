@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Computer Networks Midterm Practice</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;800&family=Public+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#EDF0F3; --paper:#FFFFFF; --ink:#14233A; --muted:#5B6B80; --line:#CBD3DD;
+  --blue:#1F5FBF; --green:#23874F; --orange:#E07B2C; --brown:#8A5A3B;
+  --ok:#23874F; --okbg:#E3F3EA; --bad:#C8402B; --badbg:#FBE7E3; --sel:#DCE7F8;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#0F1722; --paper:#18222F; --ink:#E6ECF3; --muted:#93A2B5; --line:#2C3A4B;
+    --blue:#6FA3F0; --green:#5CC28A; --orange:#F2A160; --brown:#C99470;
+    --ok:#5CC28A; --okbg:#173326; --bad:#F07A66; --badbg:#3A1E1A; --sel:#1F3352;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0F1722; --paper:#18222F; --ink:#E6ECF3; --muted:#93A2B5; --line:#2C3A4B;
+  --blue:#6FA3F0; --green:#5CC28A; --orange:#F2A160; --brown:#C99470;
+  --ok:#5CC28A; --okbg:#173326; --bad:#F07A66; --badbg:#3A1E1A; --sel:#1F3352;
+}
+html{scroll-padding-top:calc(env(safe-area-inset-top,0px) + 150px)}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Public Sans",system-ui,-apple-system,"Segoe UI",sans-serif;font-size:16px;line-height:1.5}
+.wrap{max-width:860px;margin:0 auto;padding:24px 18px 64px}
+h1{font-family:"Archivo","Arial Narrow",sans-serif;font-weight:800;font-size:clamp(28px,5vw,40px);line-height:1.05;margin:8px 0 6px;letter-spacing:-.01em}
+.sub{color:var(--muted);margin:0 0 20px;max-width:62ch}
+
+/* variant tabs as patch-cable colors */
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.tab{appearance:none;border:1px solid var(--line);background:var(--paper);color:var(--ink);font:600 15px "Public Sans",sans-serif;padding:10px 16px 10px 14px;border-radius:8px;cursor:pointer;display:flex;align-items:center;gap:10px}
+.tab .wire{width:26px;height:8px;border-radius:4px;background:var(--c)}
+.tab .wire.striped{background:repeating-linear-gradient(90deg,var(--c) 0 5px,#fff 5px 9px)}
+.tab[aria-selected="true"]{border-color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink)}
+.tab small{color:var(--muted);font-weight:500}
+.tab:focus-visible,.opt:focus-visible,.cell:focus-visible,.btn:focus-visible,.seg button:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
+
+.controls{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;margin-bottom:16px}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--paper)}
+.seg button{border:0;background:transparent;color:var(--ink);font:500 14px "Public Sans",sans-serif;padding:8px 14px;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+.best{color:var(--muted);font-size:14px}
+
+/* answer sheet like the paper exam */
+.sheet{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding:10px 0 12px;border-bottom:1px solid var(--line);margin-bottom:22px}
+.sheet-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px;font-size:14px;color:var(--muted)}
+.sheet-head strong{color:var(--ink);font-family:"Archivo",sans-serif;font-size:18px}
+.grid{display:grid;grid-template-columns:repeat(13,1fr);border:1.5px solid var(--ink);background:var(--paper)}
+.cell{appearance:none;border:0;border-right:1px solid var(--line);border-bottom:1px solid var(--line);background:transparent;color:var(--ink);padding:3px 0 4px;cursor:pointer;font:inherit;display:flex;flex-direction:column;align-items:center;min-width:0}
+.cell .n{font-size:11px;color:var(--muted);line-height:1.2}
+.cell .l{font-family:"Archivo",sans-serif;font-weight:700;font-size:17px;line-height:1.1;min-height:19px}
+.cell.ok{background:var(--okbg)} .cell.ok .l{color:var(--ok)}
+.cell.bad{background:var(--badbg)} .cell.bad .l{color:var(--bad)}
+.cell.blank{visibility:hidden}
+
+.q{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:18px 18px 14px;margin-bottom:14px}
+.q h3{margin:0 0 12px;font-size:17px;font-weight:600;line-height:1.4}
+.q h3 .num{font-family:"Archivo",sans-serif;font-weight:800;margin-right:6px}
+.tag{font-size:12px;color:var(--muted);font-weight:500;margin-left:6px;white-space:nowrap}
+.opts{display:grid;gap:6px}
+.opt{appearance:none;text-align:left;border:1px solid var(--line);background:transparent;color:var(--ink);border-radius:7px;padding:9px 12px;font:inherit;cursor:pointer;display:flex;gap:10px;align-items:flex-start}
+.opt:hover:not([disabled]){border-color:var(--muted)}
+.opt .k{font-family:"Archivo",sans-serif;font-weight:700;min-width:18px}
+.opt.chosen{background:var(--sel);border-color:var(--blue)}
+.opt.right{background:var(--okbg);border-color:var(--ok)}
+.opt.wrong{background:var(--badbg);border-color:var(--bad)}
+.opt[disabled]{cursor:default}
+.expl{margin-top:10px;font-size:14.5px;padding:10px 12px;border-left:3px solid var(--ok);background:var(--bg);border-radius:0 6px 6px 0}
+.expl.no{border-left-color:var(--bad)}
+.expl b{display:block;margin-bottom:2px}
+
+.foot{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:20px}
+.btn{appearance:none;border:1px solid var(--ink);background:var(--ink);color:var(--paper);font:600 15px "Public Sans",sans-serif;padding:11px 18px;border-radius:8px;cursor:pointer}
+.btn.ghost{background:transparent;color:var(--ink)}
+.btn[disabled]{opacity:.45;cursor:default}
+.result{width:100%;margin-top:6px;padding:16px;border-radius:10px;background:var(--paper);border:1px solid var(--line);display:none}
+.result.show{display:block}
+.result .big{font-family:"Archivo",sans-serif;font-weight:800;font-size:34px;line-height:1}
+.hidden{display:none}
+@media (max-width:560px){
+  .grid{grid-template-columns:repeat(9,1fr)}
+  .cell .l{font-size:15px}
+}
+@media (prefers-reduced-motion:no-preference){.opt,.cell{transition:background-color .15s,border-color .15s}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Computer Networks midterm practice</h1>
+  <p class="sub">Variant 1 is the paper test exactly as written. Variants 2–4 follow the same pattern, built only from Lectures 1–5. Every answer comes with a short explanation.</p>
+
+  <div class="tabs" role="tablist" id="tabs"></div>
+
+  <div class="controls">
+    <div class="seg" role="group" aria-label="Mode">
+      <button id="mPractice" aria-pressed="true">Practice: check each answer</button>
+      <button id="mExam" aria-pressed="false">Exam: check at the end</button>
+    </div>
+    <span class="best" id="best"></span>
+  </div>
+
+  <div class="sheet">
+    <div class="sheet-head"><span>Answer sheet — tap a number to jump</span><strong id="progress">0 / 25</strong></div>
+    <div class="grid" id="grid"></div>
+  </div>
+
+  <div id="questions"></div>
+
+  <div class="foot">
+    <button class="btn" id="submit">Check my answers</button>
+    <button class="btn ghost" id="mistakes" disabled>Show only mistakes</button>
+    <button class="btn ghost" id="reset">Start this variant again</button>
+    <div class="result" id="result" role="status" aria-live="polite"></div>
+  </div>
+</div>
+
+<script>
+const V = {
+1:{name:"Variant 1",note:"from the paper",c:"var(--orange)",striped:true,qs:[
+["Which OSI layer performs logical addressing and routing?",["Layer 2 - Data Link","Layer 3 - Network","Layer 4 - Transport","Layer 7 - Application"],1,"The network layer (L3) uses IP addresses — logical addresses — and routers choose the path between networks.","L2, L5"],
+["What is the standard T568B wire ordering start sequence?",["White-Green, Green...","White-Orange, Orange, White-Green...","White-Orange, Green...","White-Brown, Brown..."],1,"T568B: White-Orange, Orange, White-Green, Blue, White-Blue, Green, White-Brown, Brown. T568A starts with White-Green, Green.","L3"],
+["What cable type connects two switches directly when Auto-MDIX is off?",["Straight-through","Crossover","Rollover","Coaxial"],1,"Like devices (switch–switch, PC–PC, router–router) need a crossover cable. Auto-MDIX would fix a wrong cable automatically, but here it is off.","L3"],
+["Which Wireshark filter isolates ICMP traffic?",["ip.proto == icmp","icmp","protocol.icmp","Both A and B"],1,"Wireshark display filters use the protocol name directly: icmp. The IP protocol field is numeric (ip.proto == 1), so ip.proto == icmp is not valid.","L2"],
+["What is the PDU name at Layer 2?",["Packet","Segment","Frame","Bit"],2,"Data → Segment (L4) → Packet (L3) → Frame (L2) → Bits (L1).","L2"],
+["Which media access mechanism manages collisions on half-duplex Ethernet?",["CSMA/CD","CSMA/CA","Token Passing","TDMA"],0,"Legacy half-duplex Ethernet uses CSMA/CD: detect the collision, wait a random time, resend. CSMA/CA is for Wi-Fi.","L4"],
+["What is decimal 192 in 8-bit binary?",["11000000","10101000","11100000","10000000"],0,"192 = 128 + 64 → 1100 0000. (10101000 = 168, 11100000 = 224, 10000000 = 128.)","L3"],
+["Which mode allows executing 'hostname Sw1'?",["User EXEC","Privileged EXEC","Global Configuration","Interface Config"],2,"hostname changes the whole device, so it is a global configuration command: Switch(config)# hostname Sw1.","L1"],
+["What is the maximum distance for Cat6 UTP cabling without repeaters?",["50m","100m","250m","500m"],1,"UTP runs up to 100 m (only 30 m at 40 Gbps). Past that, attenuation weakens the signal too much.","L3"],
+["Which topology connects all nodes to a central switch?",["Bus","Ring","Star","Mesh"],2,"Star (and extended star) puts every device on a central switch — the standard LAN topology today.","L1, L4"],
+["What is the purpose of the FCS field in an Ethernet frame?",["IP addressing","CRC error detection","Data encryption","Speed autonegotiation"],1,"The Frame Check Sequence (4-byte trailer) holds a CRC value. The receiver recalculates it; a mismatch means the frame is corrupt and dropped.","L4"],
+["Which transport protocol provides connection-oriented reliable delivery?",["UDP","IP","TCP","ICMP"],2,"TCP manages conversations, guarantees delivery and does flow control. UDP is connectionless; IP is best effort.","L2"],
+["What is the local IPv4 broadcast address?",["127.0.0.1","224.0.0.1","255.255.255.255","0.0.0.0"],2,"255.255.255.255 = all ones = every host on the local network. 127.0.0.1 is loopback, 224.0.0.1 is multicast.","L4, L5"],
+["Which command displays the switch Layer 2 address table?",["show ip arp","show mac address-table","show switchport","show interface brief"],1,"The MAC (CAM) table maps MAC addresses to ports: show mac address-table. show ip arp shows IP-to-MAC (ARP) entries.","L4"],
+["Which feature automatically swaps transmit and receive pairs on switchports?",["Auto-MDIX","Auto-Speed","Port Security","PoE"],0,"Auto-MDIX detects the cable type and swaps TX/RX pairs, so a straight-through cable works even where a crossover is needed.","L3"],
+["Which field in an IEEE 802.3 Ethernet frame header synchronizes receiver clocks and indicates frame start?",["Destination MAC Address","Preamble and SFD","EtherType Field","FCS"],1,"The 8-byte Preamble + Start Frame Delimiter lets the receiver sync and marks where the frame begins. It is not counted in the 64–1518 byte frame size.","L4"],
+["What is the minimum payload size for an Ethernet frame to avoid padding?",["46 bytes","64 bytes","1500 bytes","1518 bytes"],0,"Data field is 46–1500 bytes. With 18 bytes of header + FCS, 46 bytes gives the 64-byte minimum frame. Less data is padded.","L4"],
+["In MAC address 00:1A:2B:3C:4D:5E, which part is the OUI?",["First 3 bytes (00:1A:2B)","Last 3 bytes (3C:4D:5E)","Entire 48 bits","First byte (00)"],0,"The first 24 bits (3 bytes) are the vendor's OUI from IEEE; the last 3 bytes are assigned by the vendor.","L4"],
+["What protocol is encapsulated when EtherType equals 0x0800?",["IPv6","ARP","IPv4","ICMP"],2,"EtherType 0x0800 = IPv4, 0x0806 = ARP, 0x86DD = IPv6.","L4"],
+["Which command moves a session from User EXEC to Privileged EXEC mode in Cisco IOS?",["configure terminal","enable","system-view","privilege level 15"],1,"enable: Switch> → Switch#. configure terminal then goes from privileged EXEC to global config.","L1"],
+["Which command saves running-config from RAM to NVRAM?",["copy running-config startup-config","save config-file","write memory startup","copy startup-config running-config"],0,"running-config lives in RAM (lost on power off); startup-config lives in NVRAM. Copy running → startup to save.","L1, L5"],
+["What is the primary function of ARP?",["Map IP address to domain name","Assign IP addresses dynamically","Map a known IPv4 address to a MAC address","Route packets between VLANs"],2,"ARP resolves IPv4 → MAC and keeps an ARP table. Name → IP is DNS; dynamic IP assignment is DHCP.","L5"],
+["What does a switch do when receiving an unknown unicast frame?",["Drops the frame","Floods frame out all ports except ingress port","Sends ICMP unreachable","Queries default gateway"],1,"If the destination MAC is not in the MAC table, the switch floods the frame out every port except the one it came in on.","L4"],
+["Which command encrypts stored cleartext passwords in Cisco IOS?",["enable secret level 7","service password-encryption","crypto key generate rsa","ip security encryption"],1,"service password-encryption (global config) encrypts all plaintext passwords shown in the config files.","L1, L5"],
+["Which keyboard shortcut cancels an accidental hung command or DNS lookup in Cisco IOS?",["Ctrl + C","Ctrl + Shift + 6","Ctrl + Alt + Delete","Esc + Shift"],1,"Ctrl-Shift-6 is the all-purpose break sequence that aborts DNS lookups, traceroutes and pings.","L1"]
+]},
+2:{name:"Variant 2",note:"",c:"var(--orange)",striped:false,qs:[
+["Which OSI layer segments data and reassembles it for individual conversations?",["Layer 3 - Network","Layer 4 - Transport","Layer 5 - Session","Layer 6 - Presentation"],1,"The transport layer (L4) segments, transfers and reassembles data for each conversation.","L2"],
+["What is the standard T568A wire ordering start sequence?",["White-Green, Green, White-Orange...","White-Orange, Orange, White-Green...","White-Blue, Blue, White-Green...","Green, White-Green, Orange..."],0,"T568A starts White-Green, Green; T568B starts White-Orange, Orange. A–B swaps the green and orange pairs.","L3"],
+["Which cable type connects a PC directly to a switch?",["Straight-through","Crossover","Rollover","Coaxial"],0,"Different device types (PC–switch, switch–router) use a straight-through cable.","L3"],
+["Which Wireshark filter shows only ARP traffic?",["arp","ip.arp","eth.arp","protocol == arp"],0,"Display filters use the protocol name: arp. ARP is not inside IP, so ip.arp makes no sense.","L5"],
+["What is the PDU name at Layer 4 when TCP is used?",["Frame","Packet","Segment","Bits"],2,"Transport layer PDU = segment. Packet is L3, frame is L2.","L2"],
+["Which media access method is used by IEEE 802.11 wireless LANs?",["CSMA/CD","CSMA/CA","Token passing","Polling"],1,"Wi-Fi uses CSMA/CA: devices announce how long they will transmit so others wait, avoiding collisions.","L4"],
+["What is decimal 168 in 8-bit binary?",["10101000","10100100","11001000","10011000"],0,"168 = 128 + 32 + 8 → 1010 1000.","L3"],
+["Which prompt shows Privileged EXEC mode?",["Switch>","Switch#","Switch(config)#","Switch(config-if)#"],1,"> = user EXEC, # = privileged EXEC, (config)# = global config, (config-if)# = interface config.","L1"],
+["According to the lecture, what is the maximum distance for multimode fiber at 10 Gbps?",["100 m","550 m","2 km","100 km"],1,"Multimode fiber has more dispersion, so it is limited to about 550 m at 10 Gbps. Single-mode goes much farther.","L3"],
+["Which topology connects every node to every other node for high redundancy?",["Bus","Star","Ring","Mesh"],3,"Full mesh gives the highest availability but is the most expensive.","L1, L4"],
+["Which Ethernet frame field identifies the encapsulated Layer 3 protocol?",["Preamble","FCS","Type / Length (EtherType)","Source MAC"],2,"The 2-byte Type field says what is inside: IPv4, IPv6, ARP…","L4"],
+["Which transport protocol is connectionless and sends no acknowledgments?",["TCP","UDP","IP","ARP"],1,"UDP has low overhead: no connection setup, no ACKs, no resending.","L2"],
+["What is the IPv4 loopback address?",["127.0.0.1","255.255.255.255","169.254.0.1","0.0.0.0"],0,"A host sends to itself with 127.0.0.1 (IPv6: ::1).","L5"],
+["Which command displays the IPv4 routing table on a router?",["show ip route","show mac address-table","show running-config","show arp"],0,"show ip route lists C, L, S, O, D and default routes.","L5"],
+["Which wireless technology is defined by IEEE 802.11?",["Bluetooth","Wi-Fi","WiMAX","Zigbee"],1,"802.11 = Wi-Fi (WLAN); 802.15 = Bluetooth; 802.16 = WiMAX; 802.15.4 = Zigbee.","L3"],
+["Which 4-byte Ethernet field is placed in the trailer?",["FCS","Type","Preamble","Destination MAC"],0,"The FCS is the only trailer field; everything else is in the header.","L4"],
+["What is the maximum standard Ethernet frame size, not counting the preamble?",["1500 bytes","1518 bytes","9000 bytes","64 bytes"],1,"Ethernet frames are 64–1518 bytes. 1500 is the maximum data field (MTU).","L4"],
+["How many bits are in an Ethernet MAC address?",["32","48","64","128"],1,"48 bits = 6 bytes = 12 hex digits. (IPv4 = 32 bits, IPv6 = 128 bits.)","L4"],
+["Which EtherType value indicates an ARP message?",["0x0800","0x86DD","0x0806","0x8100"],2,"0x0806 = ARP, 0x0800 = IPv4, 0x86DD = IPv6.","L4, L5"],
+["Which command enters global configuration mode from privileged EXEC?",["enable","configure terminal","config global","interface"],1,"Router# configure terminal → Router(config)#.","L1"],
+["Which command discards unsaved changes by restarting the device?",["reload","erase startup-config","copy startup-config running-config","clear running"],0,"reload restarts the device with the saved startup-config, so unsaved running-config changes are lost.","L1"],
+["A host sends a packet to a remote network. Which destination MAC does it put in the frame?",["The destination host's MAC","Broadcast FF-FF-FF-FF-FF-FF","The default gateway's MAC","Its own MAC"],2,"Remote traffic goes to the default gateway, so the frame is addressed to the gateway's MAC. The IP addresses stay end-to-end.","L5"],
+["What does a switch do with the source MAC address of an incoming frame?",["Discards it","Adds or refreshes it in the MAC table with the incoming port","Sends it to the router","Replaces it with its own MAC"],1,"This is the learning step: new source MAC → add with the port; known → reset its timer (about 5 minutes).","L4"],
+["Which command sets an encrypted password for privileged EXEC mode?",["enable secret class","enable password class","password class","login secret"],0,"enable secret stores an encrypted password for the enable (privileged) mode.","L1, L5"],
+["Which key completes a partially typed command in Cisco IOS?",["Tab","Esc","Ctrl+Z","Space"],0,"Tab completes the command; ? shows context-sensitive help.","L1"]
+]},
+3:{name:"Variant 3",note:"",c:"var(--green)",striped:false,qs:[
+["Which OSI layer turns frames into electrical, light or radio signals?",["Layer 1 - Physical","Layer 2 - Data Link","Layer 3 - Network","Layer 4 - Transport"],0,"The physical layer encodes the frame as signals on the media — the last step of encapsulation.","L3"],
+["In the T568B standard, which colors are on pins 1 and 2?",["White-Orange and Orange","White-Green and Green","White-Blue and Blue","White-Brown and Brown"],0,"T568B pin 1 = White-Orange, pin 2 = Orange. In T568A these pins are White-Green, Green.","L3"],
+["Which cable connects a PC to the console port of a Cisco switch for initial setup?",["Straight-through","Crossover","Rollover (console)","Coaxial"],2,"A rollover/console cable connects the PC's serial or USB port to the device console port.","L1, L3"],
+["Which Wireshark display filter shows only traffic to or from 192.168.1.10?",["ip.addr == 192.168.1.10","host 192.168.1.10","ip == 192.168.1.10","addr.ip = 192.168.1.10"],0,"ip.addr matches either source or destination. 'host …' is capture-filter syntax, not a display filter.","L2"],
+["What is the PDU name at Layer 3?",["Frame","Packet","Segment","Data"],1,"Network layer PDU = packet.","L2"],
+["In CSMA/CD, what do devices do after they detect a collision?",["Keep sending","Wait a random time and retransmit","Switch to full-duplex","Drop the data forever"],1,"Both senders stop, wait a random backoff time, then retransmit.","L4"],
+["What is binary 11110000 in decimal?",["224","240","248","192"],1,"128 + 64 + 32 + 16 = 240.","L3"],
+["In which mode do you assign an IP address to a router port?",["User EXEC","Privileged EXEC","Global configuration","Interface configuration"],3,"Router(config)# interface g0/0/0 → Router(config-if)# ip address …","L5"],
+["Which media is completely immune to EMI and RFI?",["UTP","STP","Coaxial","Fiber-optic"],3,"Fiber carries light, not electricity, so electromagnetic and radio interference cannot affect it.","L3"],
+["Which LAN topology chains all devices on one cable terminated at both ends?",["Bus","Star","Ring","Extended star"],0,"Bus is a legacy topology: one shared cable with terminators at each end.","L4"],
+["What is an Ethernet frame smaller than 64 bytes called?",["Jumbo frame","Runt frame / collision fragment","Baby giant frame","Broadcast frame"],1,"Frames under 64 bytes are runts and are dropped. Over 1500 bytes of data = jumbo / baby giant.","L4"],
+["Which protocol is connection-oriented and guarantees delivery?",["UDP","TCP","IP","Ethernet"],1,"TCP sets up a connection and acknowledges data; IP and Ethernet do not guarantee delivery.","L2"],
+["What is the destination MAC address of an Ethernet broadcast frame?",["00-00-00-00-00-00","FF-FF-FF-FF-FF-FF","01-00-5E-00-00-01","33-33-00-00-00-01"],1,"Broadcast = 48 ones = FF-FF-FF-FF-FF-FF. 01-00-5E is IPv4 multicast, 33-33 is IPv6 multicast.","L4"],
+["Which command shows a summary of interfaces with their IP addresses and status?",["show ip interface brief","show ip route","show version","show mac address-table"],0,"show ip interface brief lists each interface, its IP, and up/down status.","L5"],
+["Which UTP property reduces crosstalk without any shielding?",["Cancellation from twisted pairs","Grounding","Attenuation","Encoding"],0,"Wires in a pair carry opposite polarity and are twisted, so their magnetic fields cancel.","L3"],
+["Which data link sublayer (IEEE 802.2) identifies the network layer protocol in the frame?",["MAC","LLC","NIC","PHY"],1,"LLC talks up to the upper-layer software; MAC handles media access and addressing.","L4"],
+["What is the maximum size of the data field (MTU) in a standard Ethernet frame?",["46 bytes","1500 bytes","1518 bytes","9000 bytes"],1,"Data: 46–1500 bytes. Whole frame: 64–1518 bytes.","L4, L5"],
+["Which organization assigns the OUI part of MAC addresses?",["IETF","IEEE","ICANN","ISO"],1,"Vendors register with the IEEE to get a unique 3-byte OUI.","L4"],
+["Which destination MAC prefix is used for IPv4 multicast frames?",["01-00-5E","33-33","FF-FF","00-00-0C"],0,"IPv4 multicast MACs start with 01-00-5E; IPv6 multicast MACs start with 33-33.","L4"],
+["Which command returns from any configuration mode directly to privileged EXEC?",["exit","end","disable","logout"],1,"end (or Ctrl+Z) jumps straight to privileged EXEC; exit goes back one level.","L1"],
+["Where is the startup-config file stored?",["RAM","NVRAM","CPU cache","ROM"],1,"startup-config is in NVRAM and survives a power off; running-config is in RAM.","L1"],
+["A host's ARP table has no entry for the destination IP. What does it do?",["Sends an ARP request broadcast","Drops the packet","Uses a default MAC","Asks the DNS server"],0,"It broadcasts an ARP request; the device with that IP replies with its MAC.","L5"],
+["What does a switch do when the destination MAC is found in its MAC table?",["Floods the frame","Forwards it out only that port","Sends it to the router","Drops it"],1,"Known destination → filter the frame and send it out one port only.","L4"],
+["Which line configuration command turns on password checking at login?",["login","enable","password-check","secure"],0,"line console 0 → password … → login. Without login, the password is not checked.","L1"],
+["Which key combination leaves configuration mode and returns to privileged EXEC?",["Ctrl+Z","Ctrl+P","Tab","Ctrl+B"],0,"Ctrl+Z works like end. Ctrl+P recalls history, Tab completes, Ctrl+B moves the cursor left.","L1"]
+]},
+4:{name:"Variant 4",note:"",c:"var(--brown)",striped:false,qs:[
+["At which OSI layer do MAC addresses operate?",["Layer 1 - Physical","Layer 2 - Data Link","Layer 3 - Network","Layer 4 - Transport"],1,"MAC addresses are Layer 2 (physical) addresses used for NIC-to-NIC delivery on one link.","L4"],
+["Which connector terminates UTP network cables?",["RJ-11","RJ-45","ST","SC"],1,"UTP and STP use RJ-45. ST and SC are fiber connectors; RJ-11 is for phone lines.","L3"],
+["Which cable type connects a router directly to a PC when Auto-MDIX is off?",["Straight-through","Crossover","Rollover","Coaxial"],1,"Router and PC count as similar devices, so they need a crossover cable.","L3"],
+["Which Wireshark filter shows only TCP traffic on port 80?",["tcp.port == 80","port 80","http.port == 80","tcp = 80"],0,"tcp.port matches source or destination port. 'port 80' is capture-filter syntax.","L2"],
+["What is the correct order of PDUs when data moves down the stack?",["Data, Segment, Packet, Frame, Bits","Data, Packet, Segment, Frame, Bits","Bits, Frame, Packet, Segment, Data","Data, Frame, Packet, Segment, Bits"],0,"Encapsulation goes top-down: Data → Segment → Packet → Frame → Bits. Option C is the de-encapsulation order.","L2"],
+["Which communication lets both devices send and receive at the same time?",["Half-duplex","Full-duplex","Simplex","CSMA/CD"],1,"Switches use full-duplex, so no CSMA/CD is needed. Hubs and WLANs are half-duplex.","L4"],
+["What is hexadecimal 0x2F in decimal?",["31","47","42","63"],1,"2 × 16 + 15 = 47.","L4"],
+["Which mode is shown by the prompt Router(config-line)#?",["Global configuration","Line configuration","Interface configuration","Privileged EXEC"],1,"line console 0 or line vty 0 4 enters line configuration mode.","L1"],
+["Which fiber type uses lasers and a very small core for long distances?",["Multimode","Single-mode","STP","Coaxial"],1,"Single-mode: small core, expensive lasers, long distance. Multimode: larger core, LEDs, up to 550 m.","L3"],
+["Which WAN topology uses a central site that connects branch sites?",["Point-to-point","Hub and spoke","Full mesh","Bus"],1,"Hub and spoke works like a star: branches link to a central site over point-to-point links.","L4"],
+["Which part of a data link frame contains the error-detection field?",["Header","Data","Trailer","Preamble"],2,"Frame = header + data + trailer; error detection (FCS) sits in the trailer.","L4"],
+["Which IP characteristic means it does not guarantee delivery or expect acknowledgments?",["Connectionless","Best effort","Media independent","Reliable"],1,"Best effort = no guarantee and low overhead. Connectionless = no connection set up first.","L5"],
+["What is the IPv6 loopback address?",["::1","fe80::1","ff02::1","2001:db8::1"],0,"::1 is IPv6 loopback, like 127.0.0.1 in IPv4. fe80:: is link-local, ff02:: is multicast.","L5"],
+["Which Windows command displays a PC's routing table?",["route print","show ip route","ipconfig /route","arp -a"],0,"route print (or netstat -r). show ip route is a Cisco IOS command.","L5"],
+["Which security goal ensures data has not been altered during transmission?",["Confidentiality","Integrity","Availability","Scalability"],1,"CIA: Confidentiality = only intended readers; Integrity = not changed; Availability = timely access.","L1"],
+["Which IPv6 header field replaced the IPv4 TTL field?",["Traffic Class","Flow Label","Hop Limit","Next Header"],2,"Hop Limit counts router hops like TTL. Traffic Class = QoS; Next Header = like IPv4 Protocol.","L5"],
+["What is the size of the fixed IPv6 header?",["20 bytes","32 bytes","40 bytes","64 bytes"],2,"The IPv6 header is simplified but fixed at 40 bytes.","L5"],
+["In MAC address 00-07-E9-63-CE-53, which part is assigned by the vendor?",["00-07-E9","63-CE-53","00-07","CE-53"],1,"First 3 bytes = OUI (00-07-E9); last 3 bytes = vendor-assigned (63-CE-53).","L4"],
+["Which protocol does IPv6 use instead of ARP to find MAC addresses?",["DHCPv6","Neighbor Discovery (ICMPv6)","RARP","DNS"],1,"IPv6 resolves addresses with ND, which is part of ICMPv6.","L4, L5"],
+["Which interface command activates a router interface?",["no shutdown","enable","interface up","start"],0,"Router interfaces are shut down by default; no shutdown turns them on.","L5"],
+["Which command deletes the saved configuration from NVRAM?",["erase startup-config","delete running-config","reload","no config"],0,"erase startup-config clears NVRAM; then reload to clear the running-config from RAM.","L1"],
+["In show ip route, which code marks a directly connected network?",["S","C","O","D"],1,"C = connected, L = local interface, S = static, O = OSPF, D = EIGRP, S* = default.","L5"],
+["How does a hub differ from a switch?",["It forwards using a MAC table","It repeats bits out all ports except the incoming one","It routes packets","It encrypts frames"],1,"A hub has no MAC table; it repeats everything. A switch learns MACs and filters frames.","L4"],
+["Which command creates a message-of-the-day warning banner?",["banner motd # text #","motd banner text","message day text","login banner text"],0,"banner motd uses a delimiter character (#) before and after the message.","L1, L5"],
+["Which access method is recommended for secure remote CLI access?",["Telnet","SSH","Console","HTTP"],1,"SSH encrypts the session. Telnet sends passwords in plaintext; console is a local physical port.","L1"]
+]}
+};
+
+const L = ["A","B","C","D"];
+let cur = 1, mode = "practice";
+const state = {}; // variant -> {ans:[], checked:bool, onlyMistakes:bool}
+function st(v){ if(!state[v]) state[v]={ans:Array(V[v].qs.length).fill(null),checked:false,only:false}; return state[v]; }
+function store(get,k,val){ try{ if(get) return localStorage.getItem(k); localStorage.setItem(k,val);}catch(e){ return null; } }
+
+const tabs=document.getElementById("tabs"), grid=document.getElementById("grid"), qbox=document.getElementById("questions");
+const res=document.getElementById("result"), btnSubmit=document.getElementById("submit"), btnMist=document.getElementById("mistakes");
+
+function renderTabs(){
+  tabs.innerHTML="";
+  Object.keys(V).forEach(k=>{
+    const b=document.createElement("button");
+    b.className="tab"; b.setAttribute("role","tab"); b.setAttribute("aria-selected",String(+k===cur));
+    b.style.setProperty("--c",V[k].c);
+    b.innerHTML=`<span class="wire ${V[k].striped?"striped":""}"></span>${V[k].name}${V[k].note?` <small>${V[k].note}</small>`:""}`;
+    b.onclick=()=>{cur=+k;render();window.scrollTo({top:0});};
+    tabs.appendChild(b);
+  });
+}
+
+function reveal(i){ const s=st(cur); return mode==="practice" ? s.ans[i]!==null : s.checked; }
+
+function render(){
+  renderTabs();
+  const s=st(cur), qs=V[cur].qs;
+  // answer sheet
+  grid.innerHTML="";
+  const cols = window.matchMedia("(max-width:560px)").matches?9:13;
+  qs.forEach((q,i)=>{
+    const c=document.createElement("button"); c.className="cell";
+    const a=s.ans[i];
+    if(a!==null && reveal(i)) c.classList.add(a===q[2]?"ok":"bad");
+    c.innerHTML=`<span class="n">${i+1}</span><span class="l">${a===null?"":L[a]}</span>`;
+    c.setAttribute("aria-label",`Question ${i+1}${a===null?", not answered":", answered "+L[a]}`);
+    c.onclick=()=>document.getElementById("q"+i).scrollIntoView({behavior:"smooth",block:"start"});
+    grid.appendChild(c);
+  });
+  const pad=(cols-qs.length%cols)%cols; for(let p=0;p<pad;p++){const e=document.createElement("span");e.className="cell blank";grid.appendChild(e);}
+  const answered=s.ans.filter(x=>x!==null).length;
+  document.getElementById("progress").textContent=`${answered} / ${qs.length}`;
+
+  // questions
+  qbox.innerHTML="";
+  qs.forEach((q,i)=>{
+    const a=s.ans[i], show=reveal(i), wrong=show&&a!==q[2];
+    const d=document.createElement("section"); d.className="q"; d.id="q"+i;
+    if(s.only && s.checked && !wrong && a!==null) d.classList.add("hidden");
+    if(s.only && s.checked && a===null) d.classList.remove("hidden");
+    let h=`<h3><span class="num">${i+1}.</span>${q[0]}<span class="tag">Lecture ${q[4]}</span></h3><div class="opts">`;
+    q[1].forEach((o,j)=>{
+      let cls="opt";
+      if(show){ if(j===q[2]) cls+=" right"; else if(j===a) cls+=" wrong"; }
+      else if(j===a) cls+=" chosen";
+      h+=`<button class="${cls}" data-q="${i}" data-o="${j}" ${show?"disabled":""}><span class="k">${L[j]})</span><span>${o}</span></button>`;
+    });
+    h+="</div>";
+    if(show){
+      const ok=a===q[2];
+      h+=`<div class="expl ${ok?"":"no"}"><b>${a===null?"Not answered — correct answer: "+L[q[2]]:ok?"Correct":"Not quite — correct answer: "+L[q[2]]}</b>${q[3]}</div>`;
+    }
+    d.innerHTML=h; qbox.appendChild(d);
+  });
+  qbox.querySelectorAll(".opt").forEach(b=>b.onclick=()=>{
+    const i=+b.dataset.q, j=+b.dataset.o; st(cur).ans[i]=j;
+    render();
+    if(mode==="practice" && st(cur).ans.every(x=>x!==null)) finish();
+  });
+
+  // footer
+  btnSubmit.classList.toggle("hidden", mode==="practice" || s.checked);
+  btnMist.disabled=!s.checked;
+  btnMist.textContent=s.only?"Show all questions":"Show only mistakes";
+  if(!s.checked) res.classList.remove("show"); else showResult();
+  const best=store(true,"cnq-best-"+cur);
+  document.getElementById("best").textContent=best?`Best on ${V[cur].name}: ${best} / ${qs.length}`:"";
+}
+
+function score(){ const s=st(cur); return V[cur].qs.reduce((n,q,i)=>n+(s.ans[i]===q[2]?1:0),0); }
+function showResult(){
+  const n=score(), t=V[cur].qs.length, pct=Math.round(n/t*100);
+  const wrongNums=V[cur].qs.map((q,i)=>st(cur).ans[i]!==q[2]?i+1:null).filter(Boolean);
+  res.innerHTML=`<div class="big">${n} / ${t}</div><div>${pct}% correct. ${wrongNums.length?"Review questions "+wrongNums.join(", ")+".":"Every answer is right — try the next variant."}</div>`;
+  res.classList.add("show");
+}
+function finish(){
+  const s=st(cur); s.checked=true;
+  const n=score(), prev=+(store(true,"cnq-best-"+cur)||0);
+  if(n>prev) store(false,"cnq-best-"+cur,String(n));
+  render(); res.scrollIntoView({behavior:"smooth",block:"center"});
+}
+
+btnSubmit.onclick=()=>{
+  const s=st(cur), left=s.ans.filter(x=>x===null).length;
+  if(left && !confirm(`${left} question(s) are not answered yet. Check anyway?`)) return;
+  finish();
+};
+btnMist.onclick=()=>{ const s=st(cur); s.only=!s.only; render(); };
+document.getElementById("reset").onclick=()=>{ delete state[cur]; render(); window.scrollTo({top:0}); };
+
+function setMode(m){
+  mode=m;
+  document.getElementById("mPractice").setAttribute("aria-pressed",String(m==="practice"));
+  document.getElementById("mExam").setAttribute("aria-pressed",String(m==="exam"));
+  Object.keys(state).forEach(k=>delete state[k]);
+  render();
+}
+document.getElementById("mPractice").onclick=()=>setMode("practice");
+document.getElementById("mExam").onclick=()=>setMode("exam");
+window.matchMedia("(max-width:560px)").addEventListener("change",render);
+render();
+</script>
+</body>
+</html>
